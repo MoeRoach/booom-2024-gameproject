@@ -1,4 +1,4 @@
-﻿// File create date:2024/4/22
+﻿﻿// File create date:2024/4/22
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
@@ -73,5 +73,6 @@ public static class PawnOperateConfigs {
 
 	public const string ExtraKeyIdentifier = "Identifier";
 	public const string ExtraKeyTarget = "Target";
+	public const string ExtraKeyCoordinate = "Coordinate";
 	public const string ExtraKeyDirection = "Direction";
 }

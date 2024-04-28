@@ -1,4 +1,4 @@
-﻿// File create date:2024/4/21
+﻿﻿// File create date:2024/4/21
 using System;
 using System.Collections.Generic;
 using RoachFramework;
@@ -8,6 +8,7 @@ public class GameDataService : IGameService {
 
 	public const string ServiceName = "GameDataService";
 
+	public bool stageGenerated;
 	public StageData stageData;
 	public StageEntityData stageEntityData;
 	

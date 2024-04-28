@@ -151,7 +151,7 @@ namespace RoachFramework {
         /// </summary>
         /// <param name="tn">任务名称</param>
         /// <param name="factory">任务构造工厂方法</param>
-        protected async void AsyncTask(string tn, Func<CancellationToken, UniTask> factory) {
+        protected async void AsyncTask(string tn, Func<CancellationTokenSource, UniTask> factory) {
             if (asyncTaskCancelTokens.ContainsKey(tn)) {
                 Debug.LogWarning($"Another task with the same name: {tn} is executing.");
                 asyncTaskCancelTokens[tn].Cancel();
@@ -161,7 +161,7 @@ namespace RoachFramework {
             try {
                 var cts = new CancellationTokenSource();
                 asyncTaskCancelTokens[tn] = cts;
-                await factory.Invoke(cts.Token);
+                await factory.Invoke(cts);
             } catch (OperationCanceledException e) {
                 Debug.LogWarning($"Task with name: {tn} has been canceled.");
                 Console.WriteLine(e.Message);

@@ -1,6 +1,8 @@
-﻿// File create date:2024/4/18
+﻿﻿// File create date:2024/4/18
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using RoachFramework;
 using UnityEngine;
 // Created By Yu.Liu
@@ -69,6 +71,89 @@ public abstract class BasePawnController : HierarchyStateMachine  {
 
 	protected virtual void OnPawnGenerated() {
 		gameData.stageEntityData.RegisterPawn(this);
+	}
+
+	public virtual async UniTask AsyncMove(Vector3 target, float spd, CancellationTokenSource cts) {
+		var start = transform.position;
+		var delta = target - start;
+		var invt = spd / delta.magnitude;
+		var timer = 0f;
+		while (timer < 1f) {
+			timer += Time.deltaTime * invt;
+			transform.position = Vector3.Lerp(start, target, timer);
+			await UniTask.Yield(cts.Token);
+		}
+	}
+
+	public virtual async UniTask AsyncCollect(GameObject target, float time, CancellationTokenSource cts) {
+		var timer = 0f;
+		while (timer < time) {
+			timer += Time.deltaTime;
+			await UniTask.Yield(cts.Token);
+		}
+	}
+
+	public virtual async UniTask AsyncCarryon(GameObject target, CancellationTokenSource cts) {
+		// 把东西带上
+		await UniTask.Yield(cts.Token);
+	}
+	
+	public virtual async UniTask AsyncPutdown(GameObject target, CancellationTokenSource cts) {
+		// 把东西放下
+		await UniTask.Yield(cts.Token);
+	}
+	
+	public virtual async UniTask AsyncProduce(GameObject target, float time, CancellationTokenSource cts) {
+		var timer = 0f;
+		while (timer < time) {
+			timer += Time.deltaTime;
+			await UniTask.Yield(cts.Token);
+		}
+	}
+	
+	public virtual async UniTask AsyncAttack(GameObject target, CancellationTokenSource cts) {
+		// 攻击目标，播放攻击动画，等待事件处理和动画完结，然后再返回
+		await UniTask.Yield(cts.Token);
+	}
+	
+	public virtual async UniTask AsyncThink(GameObject target, float time, CancellationTokenSource cts) {
+		var timer = 0f;
+		while (timer < time) {
+			timer += Time.deltaTime;
+			await UniTask.Yield(cts.Token);
+		}
+	}
+	
+	public virtual async UniTask AsyncHappy(GameObject target, float time, CancellationTokenSource cts) {
+		var timer = 0f;
+		while (timer < time) {
+			timer += Time.deltaTime;
+			await UniTask.Yield(cts.Token);
+		}
+	}
+	
+	public virtual async UniTask AsyncFreeze(GameObject target, float time, CancellationTokenSource cts) {
+		var timer = 0f;
+		while (timer < time) {
+			timer += Time.deltaTime;
+			await UniTask.Yield(cts.Token);
+		}
+	}
+	
+	public virtual async UniTask AsyncThunder(GameObject target, float time, CancellationTokenSource cts) {
+		var timer = 0f;
+		while (timer < time) {
+			timer += Time.deltaTime;
+			await UniTask.Yield(cts.Token);
+		}
+	}
+	
+	public virtual async UniTask AsyncMeteor(GameObject target, float time, CancellationTokenSource cts) {
+		var timer = 0f;
+		while (timer < time) {
+			timer += Time.deltaTime;
+			await UniTask.Yield(cts.Token);
+		}
 	}
 
 	protected override void Release() {
