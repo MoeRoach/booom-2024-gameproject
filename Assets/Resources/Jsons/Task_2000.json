@@ -1,0 +1,40 @@
+{
+    "taskId": "2000",
+    "name": "test",
+    "color": "#AB5D52",
+    "tipStyle": "T",
+    "timeout": 30,
+    "taskContent": "test test test.",
+    "image": "test",
+    "imageTitle": "test title",
+    "chooseList": [
+        {
+            "index": 0,
+            "text": "time out choose",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 1,
+            "text": "choose 1",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 2,
+            "text": "choose 2",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 3,
+            "text": "choose 3",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        }
+    ]
+}

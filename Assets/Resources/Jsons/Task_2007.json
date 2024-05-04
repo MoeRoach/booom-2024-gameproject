@@ -1,0 +1,40 @@
+{
+    "taskId": "2007",
+    "name": "supplies: iron ore",
+    "color": "#AB5D52",
+    "tipStyle": "S",
+    "timeout": 30,
+    "taskContent": "Master, here comes some iron ore, should we bug it?",
+    "image": "iron ore",
+    "imageTitle": "iron ore",
+    "chooseList": [
+        {
+            "index": 0,
+            "text": "time out choose",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 1,
+            "text": "buy it",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 2,
+            "text": "no need",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 3,
+            "text": "!@#$%^&*(",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        }
+    ]
+}

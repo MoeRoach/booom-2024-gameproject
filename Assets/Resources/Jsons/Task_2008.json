@@ -1,0 +1,40 @@
+{
+    "taskId": "2008",
+    "name": "need more workers?",
+    "color": "#AB5D52",
+    "tipStyle": "W",
+    "timeout": 30,
+    "taskContent": "Master, should we need more workers?",
+    "image": "more workers",
+    "imageTitle": "more workers",
+    "chooseList": [
+        {
+            "index": 0,
+            "text": "time out choose",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 1,
+            "text": "one more",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 2,
+            "text": "two more",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 3,
+            "text": "no need",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+{
+    "taskId": "2009",
+    "name": "nothing",
+    "color": "#AB5D52",
+    "tipStyle": "C",
+    "timeout": 30,
+    "taskContent": "Master, everything is under controll",
+    "image": "nothing",
+    "imageTitle": "nothing",
+    "chooseList": [
+        {
+            "index": 0,
+            "text": "time out choose",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 1,
+            "text": "OK",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 2,
+            "text": "Good Job",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 3,
+            "text": "I don't think so",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        }
+    ]
+}

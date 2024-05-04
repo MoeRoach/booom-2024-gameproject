@@ -1,0 +1,40 @@
+{
+    "taskId": "2004",
+    "name": "supplies: stone man",
+    "color": "#AB5D52",
+    "tipStyle": "S",
+    "timeout": 30,
+    "taskContent": "Master, here comes a stone man, should we bug it?",
+    "image": "stone man",
+    "imageTitle": "stone man",
+    "chooseList": [
+        {
+            "index": 0,
+            "text": "time out choose",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 1,
+            "text": "buy it",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 2,
+            "text": "no need",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        },
+        {
+            "index": 3,
+            "text": "!@#$%^&*(",
+            "checkList": [],
+            "Pass": [],
+            "Fail": []
+        }
+    ]
+}
