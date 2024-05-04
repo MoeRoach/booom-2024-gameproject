@@ -12,9 +12,14 @@ public abstract class BasePawnRobot {
 
 	protected BasePawnController owner;
 	protected GameDataService dataService;
+
+	protected PawnRootControl pawnRoot;
+	protected ObjectRootControl objectRoot;
+	protected FacilityRootControl facilityRoot;
+	
 	protected StagePathFinder pathFinder;
 	protected Queue<Square> pathQueue;
-	protected PathState pathState;
+	protected StagePathFinder.PathState pathState;
 
 	protected Queue<PawnOperation> operations;
 	protected PawnOperation currOperation;
@@ -29,21 +34,27 @@ public abstract class BasePawnRobot {
 		owner = src;
 	}
 
-	public void Initialize() {
+	public virtual void Initialize() {
 		stateMachine = new SimpleStateMachine();
 		dataService = GameSystem.Instance.GameData;
+		pawnRoot = PawnRootControl.Instance;
+		objectRoot = ObjectRootControl.Instance;
+		facilityRoot = FacilityRootControl.Instance;
 		pathFinder = StagePathFinder.Instance;
 		pathQueue = new Queue<Square>();
 		operations = new Queue<PawnOperation>();
-		pathState = PathState.Idle;
+		pathState = StagePathFinder.PathState.Wait;
 		isActive = true;
 		SetupMachine();
 	}
 
 	protected virtual void SetupMachine() {
-		stateMachine.SetupState(RobotState.Waiting).OnUpdateState(UpdateWaiting);
-		stateMachine.SetupState(RobotState.Thinking).OnUpdateState(UpdateThinking);
-		stateMachine.SetupState(RobotState.Executing).OnUpdateState(UpdateExecuting);
+		stateMachine.SetupState(RobotState.Waiting)
+			.OnEnterState(EnterWaiting).OnUpdateState(UpdateWaiting).OnExitState(ExitWaiting);
+		stateMachine.SetupState(RobotState.Thinking)
+			.OnEnterState(EnterThinking).OnUpdateState(UpdateThinking).OnExitState(ExitThinking);
+		stateMachine.SetupState(RobotState.Executing)
+			.OnEnterState(EnterExecuting).OnUpdateState(UpdateExecuting).OnExitState(ExitExecuting);
 		stateMachine.EntryState(RobotState.Waiting);
 	}
 	
@@ -52,6 +63,8 @@ public abstract class BasePawnRobot {
 	}
 	
 	#region State Machine Functions
+	
+	protected virtual void EnterWaiting() { }
 
 	protected virtual void UpdateWaiting() {
 		if (!isActive || !CanDecide()) return;
@@ -61,6 +74,10 @@ public abstract class BasePawnRobot {
 	protected virtual bool CanDecide() {
 		return true;
 	}
+	
+	protected virtual void ExitWaiting() { }
+	
+	protected virtual void EnterThinking() { }
 
 	protected virtual void UpdateThinking() {
 		if (!isActive) stateMachine.ChangeState(RobotState.Waiting);
@@ -81,30 +98,44 @@ public abstract class BasePawnRobot {
 	protected abstract void Decide();
 
 	protected virtual void PostDecision() { }
+	
+	protected virtual void ExitThinking() { }
+	
+	protected virtual void EnterExecuting() { }
 
 	protected virtual void UpdateExecuting() {
-		if (!isActive) stateMachine.ChangeState(RobotState.Waiting);
 		if (isExecute) {
-			if (operations.Count <= 0) {
-				stateMachine.ChangeState(RobotState.Waiting);
-				return;
-			}
-			
+			if (operations.Count <= 0) return;
 			var peekOp = operations.Peek();
-			if (currOperation.priority || !peekOp.priority) return;
+			if (!peekOp.priority || currOperation != null && currOperation.priority) return;
 			// 可以打断当前异步
 			opCancel?.Cancel();
 			isExecute = false;
 		}
 		
-		var nextOp = operations.Dequeue();
-		ProcessOperation(nextOp);
+		if (!isActive || operations.Count <= 0) {
+			stateMachine.ChangeState(RobotState.Waiting);
+			return;
+		}
+		
+		currOperation = operations.Dequeue();
+		ProcessOperation(currOperation);
 	}
+	
+	protected virtual void ExitExecuting() { }
 
 	#endregion
 
 	public virtual void OnRobotUpdate() {
 		stateMachine.UpdateState();
+	}
+
+	public virtual bool IsAvailiable() {
+		return operations.Count <= 0;
+	}
+
+	public virtual void RequestOperation(PawnOperation op) {
+		operations.Enqueue(op);
 	}
 
 	private async void ProcessOperation(PawnOperation op) {
@@ -156,10 +187,12 @@ public abstract class BasePawnRobot {
 
 	protected virtual async UniTask DoMoveto(Square tc, CancellationTokenSource cts) {
 		var request = StagePathFinder.CreateRequest(owner.Id, owner.Coord, tc, owner.Area, OnPathCallback);
+		request.checkWalkable = CheckMapTileWalkable;
+		request.getDistance = GetTileDistance;
 		pathFinder.RequestForPath(request);
-		pathState = PathState.Finding;
-		while (pathState == PathState.Finding) await UniTask.Yield(cts.Token);
-		pathState = PathState.Idle;
+		pathState = StagePathFinder.PathState.Finding;
+		while (pathState == StagePathFinder.PathState.Finding) await UniTask.Yield(cts.Token);
+		pathState = StagePathFinder.PathState.Wait;
 		// 路径找到了，开始执行移动
 		while (pathQueue.Count > 0) {
 			var wp = pathQueue.Dequeue();
@@ -210,8 +243,25 @@ public abstract class BasePawnRobot {
 		await owner.AsyncMeteor(null, 2f, cts);
 	}
 
+	protected virtual bool CheckMapTileWalkable(int id, Square dst, Square area) {
+		for (var x = 0; x < area.x; x++) {
+			for (var y = 0; y < area.y; y++) {
+				var sq = new Square(dst.x + x, dst.y + y);
+				if (!dataService.stageData.CheckTileExist(sq)) return false;
+				if (dataService.stageEntityData.CheckCoordOccupy(sq)) return false;
+			}
+		}
+
+		return true;
+	}
+
+	protected virtual int GetTileDistance(Square src, Square dst) {
+		var delta = dst - src;
+		return delta.Clength;
+	}
+
 	protected virtual void OnPathCallback(List<Square> path) {
-		pathState = PathState.Done;
+		pathState = StagePathFinder.PathState.Done;
 		pathQueue.Clear();
 		foreach (var point in path) {
 			pathQueue.Enqueue(point);
@@ -222,15 +272,17 @@ public abstract class BasePawnRobot {
 		isExecute = false;
 	}
 
+	public void CancelOperation() {
+		opCancel?.Cancel();
+	}
+
+	protected PawnOperation CreateOperation(string op) {
+		return new PawnOperation(owner.Id) {op = op};
+	}
+
 	protected enum RobotState {
 		Thinking,
 		Executing,
 		Waiting
-	}
-
-	public enum PathState {
-		Idle,
-		Finding,
-		Done
 	}
 }

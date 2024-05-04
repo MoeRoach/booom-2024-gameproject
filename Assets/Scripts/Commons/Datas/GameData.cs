@@ -9,6 +9,10 @@ public class GameData {
 	// Script Code
 }
 
+ public static class ObjectConfigs {
+	 public const string ObjectTypeMonsterCorpse = "MonsterCorpse";
+ }
+
 public class PawnOperation {
 	
 	public int pid;

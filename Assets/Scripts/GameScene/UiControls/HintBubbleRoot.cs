@@ -6,6 +6,8 @@ using UnityEngine;
 // Created By Yu.Liu
 public class HintBubbleRoot : BaseUiWidget {
 
+	private PawnRootControl _pawnRoot;
+
 	private Dictionary<int, HintBubble> _pawnBubbles;
 	private Dictionary<int, HintBubble> _objectBubbles;
 	private Dictionary<int, HintBubble> _facilityBubbles;

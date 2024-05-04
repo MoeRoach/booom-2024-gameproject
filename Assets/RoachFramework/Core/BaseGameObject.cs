@@ -32,7 +32,7 @@ namespace RoachFramework {
             var filter = new BroadcastFilter();
             SetupBroadcastFilter(filter);
             broadcastService.RegisterBroadcastReceiver(filter, this);
-            YieldAction(OnLazyStart);
+            NextFrameAction(OnLazyStart);
             OnStart();
         }
         
@@ -234,10 +234,22 @@ namespace RoachFramework {
         /// 摧毁对象时释放资源
         /// </summary>
         protected virtual void Release() { }
+
+        /// <summary>
+        /// 取消所有记录的异步操作
+        /// </summary>
+        protected virtual void CancelAllTasks() {
+            foreach (var key in asyncTaskCancelTokens.Keys) {
+                asyncTaskCancelTokens[key]?.Cancel();
+            }
+            
+            asyncTaskCancelTokens.Clear();
+        }
         
         private void OnDestroy() {
             broadcastService.UnregisterBroadcastReceiver(this);
             destroyFunctionSet.EnumerateAction(act => act.Invoke(gameObject));
+            CancelAllTasks();
             Release();
         }
     }

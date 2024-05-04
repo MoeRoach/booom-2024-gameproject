@@ -14,6 +14,7 @@ public class GameDataService : IGameService {
 	
 	public void InitService() {
 		stageData = new StageData();
+		stageEntityData = new StageEntityData();
 	}
 
 	public void KillService() { }

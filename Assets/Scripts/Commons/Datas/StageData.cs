@@ -8,6 +8,7 @@ public class StageData {
 	
 	public Square size;
 	public Dictionary<string, SquareTile> tiles;
+	public List<Square> tileList;
 	public SquareTile this[string id] => tiles.TryGetElement(id);
 	public SquareTile this[Square c] => tiles.TryGetElement(c.Sid);
 	public SquareTile this[int x, int y] => tiles.TryGetElement(CoordinateUtils.CompileSquare(x, y));
@@ -15,10 +16,12 @@ public class StageData {
 	public StageData() {
 		size = new Square();
 		tiles = new Dictionary<string, SquareTile>();
+		tileList = new List<Square>();
 	}
 	
 	public void Reset() {
 		tiles.Clear();
+		tileList.Clear();
 	}
 
 	public bool CheckTileExist(Square sq) {
@@ -34,6 +37,11 @@ public class StageData {
 		}
 
 		return true;
+	}
+
+	public Square RandomTileCoord() {
+		var i = NumberUtils.RandomInteger(tileList.Count - 1);
+		return tileList[i];
 	}
 }
 
@@ -94,6 +102,18 @@ public class StageEntityData {
 		_facilityMap = new Dictionary<string, List<int>>();
 	}
 
+	public bool CheckCoordOccupy(Square sq) {
+		return CheckCoordOccupy(sq.x, sq.y);
+	}
+	
+	public bool CheckCoordOccupy(int x, int y) {
+		var tid = CoordinateUtils.CompileSquare(x, y);
+		if (_pawnMap.ContainsKey(tid) && _pawnMap[tid].Count > 0) return true;
+		if (_objectMap.ContainsKey(tid) && _objectMap[tid].Count > 0) return true;
+		if (_facilityMap.ContainsKey(tid) && _facilityMap[tid].Count > 0) return true;
+		return false;
+	}
+
 	#region Pawn Functions
 
 	public void RegisterPawn(BasePawnController pawn) {
@@ -144,18 +164,26 @@ public class StageEntityData {
 		}
 	}
 
+	public bool CheckCoordOccupyByPawn(Square sq) {
+		return CheckCoordOccupyByPawn(sq.x, sq.y);
+	}
+	
+	public bool CheckCoordOccupyByPawn(int x, int y) {
+		var tid = CoordinateUtils.CompileSquare(x, y);
+		if (_pawnMap.ContainsKey(tid) && _pawnMap[tid].Count > 0) return true;
+		return false;
+	}
+
 	#endregion
 
 	#region Object Functions
 
 	public void RegisterObject(BaseObjectControl obj) {
 		_objectCoords[obj.Id] = obj.Coord.Clone();
-		for (var x = 0; x < obj.Area.x; x++) {
-			for (var y = 0; y < obj.Area.y; y++) {
-				var sid = CoordinateUtils.CompileSquare(obj.Coord.x + x, obj.Coord.y + y);
-				if (!_objectMap.ContainsKey(sid)) _objectMap[sid] = new List<int>();
-				_objectMap[sid].Add(obj.Id);
-			}
+		foreach (var sq in obj.Area) {
+			var sid = CoordinateUtils.CompileSquare(obj.Coord.x + sq.x, obj.Coord.y + sq.y);
+			if (!_objectMap.ContainsKey(sid)) _objectMap[sid] = new List<int>();
+			_objectMap[sid].Add(obj.Id);
 		}
 	}
 
@@ -165,14 +193,12 @@ public class StageEntityData {
 		var curr = obj.Coord;
 		if (prev.Equals(curr)) return;
 		var map = new HashSet<string>();
-		for (var x = 0; x < obj.Area.x; x++) {
-			for (var y = 0; y < obj.Area.y; y++) {
-				var prevId = CoordinateUtils.CompileSquare(prev.x + x, prev.y + y);
-				var currId = CoordinateUtils.CompileSquare(curr.x + x, curr.y + y);
-				map.Add(currId);
-				if (!_objectMap.ContainsKey(prevId)) continue;
-				_objectMap[prevId].Remove(obj.Id);
-			}
+		foreach (var sq in obj.Area) {
+			var prevId = CoordinateUtils.CompileSquare(prev.x + sq.x, prev.y + sq.y);
+			var currId = CoordinateUtils.CompileSquare(curr.x + sq.x, curr.y + sq.y);
+			map.Add(currId);
+			if (!_objectMap.ContainsKey(prevId)) continue;
+			_objectMap[prevId].Remove(obj.Id);
 		}
 		
 		foreach (var tile in map) {
@@ -187,13 +213,21 @@ public class StageEntityData {
 	public void UnregisterObject(BaseObjectControl obj) {
 		if (!_objectCoords.ContainsKey(obj.Id)) return;
 		_objectCoords.Remove(obj.Id);
-		for (var x = 0; x < obj.Area.x; x++) {
-			for (var y = 0; y < obj.Area.y; y++) {
-				var sid = CoordinateUtils.CompileSquare(obj.Coord.x + x, obj.Coord.y + y);
-				var map = _objectMap.TryGetElement(sid);
-				map?.Remove(obj.Id);
-			}
+		foreach (var sq in obj.Area) {
+			var sid = CoordinateUtils.CompileSquare(obj.Coord.x + sq.x, obj.Coord.y + sq.y);
+			var map = _objectMap.TryGetElement(sid);
+			map?.Remove(obj.Id);
 		}
+	}
+	
+	public bool CheckCoordOccupyByObject(Square sq) {
+		return CheckCoordOccupyByObject(sq.x, sq.y);
+	}
+	
+	public bool CheckCoordOccupyByObject(int x, int y) {
+		var tid = CoordinateUtils.CompileSquare(x, y);
+		if (_objectMap.ContainsKey(tid) && _objectMap[tid].Count > 0) return true;
+		return false;
 	}
 
 	#endregion
@@ -202,12 +236,10 @@ public class StageEntityData {
 
 	public void RegisterFacility(BaseFacilityControl fac) {
 		_facilityCoords[fac.Id] = fac.Coord.Clone();
-		for (var x = 0; x < fac.Area.x; x++) {
-			for (var y = 0; y < fac.Area.y; y++) {
-				var sid = CoordinateUtils.CompileSquare(fac.Coord.x + x, fac.Coord.y + y);
-				if (!_facilityMap.ContainsKey(sid)) _facilityMap[sid] = new List<int>();
-				_facilityMap[sid].Add(fac.Id);
-			}
+		foreach (var sq in fac.Area) {
+			var sid = CoordinateUtils.CompileSquare(fac.Coord.x + sq.x, fac.Coord.y + sq.y);
+			if (!_facilityMap.ContainsKey(sid)) _facilityMap[sid] = new List<int>();
+			_facilityMap[sid].Add(fac.Id);
 		}
 	}
 
@@ -217,14 +249,12 @@ public class StageEntityData {
 		var curr = fac.Coord;
 		if (prev.Equals(curr)) return;
 		var map = new HashSet<string>();
-		for (var x = 0; x < fac.Area.x; x++) {
-			for (var y = 0; y < fac.Area.y; y++) {
-				var prevId = CoordinateUtils.CompileSquare(prev.x + x, prev.y + y);
-				var currId = CoordinateUtils.CompileSquare(curr.x + x, curr.y + y);
-				map.Add(currId);
-				if (!_facilityMap.ContainsKey(prevId)) continue;
-				_facilityMap[prevId].Remove(fac.Id);
-			}
+		foreach (var sq in fac.Area) {
+			var prevId = CoordinateUtils.CompileSquare(prev.x + sq.x, prev.y + sq.y);
+			var currId = CoordinateUtils.CompileSquare(curr.x + sq.x, curr.y + sq.y);
+			map.Add(currId);
+			if (!_facilityMap.ContainsKey(prevId)) continue;
+			_facilityMap[prevId].Remove(fac.Id);
 		}
 		
 		foreach (var tile in map) {
@@ -239,13 +269,21 @@ public class StageEntityData {
 	public void UnregisterFacility(BaseFacilityControl fac) {
 		if (!_facilityCoords.ContainsKey(fac.Id)) return;
 		_facilityCoords.Remove(fac.Id);
-		for (var x = 0; x < fac.Area.x; x++) {
-			for (var y = 0; y < fac.Area.y; y++) {
-				var sid = CoordinateUtils.CompileSquare(fac.Coord.x + x, fac.Coord.y + y);
-				var map = _facilityMap.TryGetElement(sid);
-				map?.Remove(fac.Id);
-			}
+		foreach (var sq in fac.Area) {
+			var sid = CoordinateUtils.CompileSquare(fac.Coord.x + sq.x, fac.Coord.y + sq.y);
+			var map = _facilityMap.TryGetElement(sid);
+			map?.Remove(fac.Id);
 		}
+	}
+	
+	public bool CheckCoordOccupyByFacility(Square sq) {
+		return CheckCoordOccupyByFacility(sq.x, sq.y);
+	}
+	
+	public bool CheckCoordOccupyByFacility(int x, int y) {
+		var tid = CoordinateUtils.CompileSquare(x, y);
+		if (_facilityMap.ContainsKey(tid) && _facilityMap[tid].Count > 0) return true;
+		return false;
 	}
 
 	#endregion

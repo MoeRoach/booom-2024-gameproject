@@ -84,4 +84,20 @@ public static class MapUtils {
 
 		return sq.Sid;
 	}
+
+	public static int GetDirectionWithVector(Vector3 delta) {
+		if (delta.x > 0f) {
+			return CoordinateUtils.SQR_DIR_RIGHT;
+		}
+
+		if (delta.x < 0) {
+			return CoordinateUtils.SQR_DIR_LEFT;
+		}
+
+		if (delta.y > 0f) {
+			return CoordinateUtils.SQR_DIR_TOP;
+		}
+
+		return CoordinateUtils.SQR_DIR_BOT;
+	}
 }

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 324cdcb016b23b346beb2a58f17cb401, type: 3}
+  m_Name: PDB_StagePawns
+  m_EditorClassIdentifier: 
+  databaseName: StagePawns
+  groupNames:
+  - DefaultPawn
+  - PawnWorker
+  prefabGroups:
+  - groupName: DefaultPawn
+    groupData:
+    - dataName: "\u7F16\u53F7(0)"
+      prefabName: DefaultPawn
+      prefabObject: {fileID: 3038158182948976646, guid: a5bb3d87192b1a043ba24fe54b26b276, type: 3}
+    isExpanded: 0
+  - groupName: PawnWorker
+    groupData:
+    - dataName: "\u7F16\u53F7(0)"
+      prefabName: PawnWorker
+      prefabObject: {fileID: 6620520134741287021, guid: 4ad0ac7e21c26ce4e9726ab912d53590, type: 3}
+    isExpanded: 0
+  isExpanded: 1
