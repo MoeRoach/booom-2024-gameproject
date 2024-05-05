@@ -22,7 +22,7 @@ public class TaskController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        TimeOutProcess();
     }
 
     public void ClearInfo()

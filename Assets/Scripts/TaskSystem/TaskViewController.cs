@@ -15,6 +15,8 @@ public class TaskViewController : MonoSingleton<TaskViewController>
     [SerializeField] private TextMeshProUGUI buttonText_2;
     [SerializeField] private TextMeshProUGUI buttonText_3;
     [SerializeField] private Transform viewTrans;
+    private bool isTelescop = false;
+    [SerializeField] private TextMeshProUGUI telescopText;
 
     // Start is called before the first frame update
     void Start()
@@ -83,5 +85,11 @@ public class TaskViewController : MonoSingleton<TaskViewController>
         return obj;
     }
 
-
+    public void TelescopicView()
+    {
+        float offset = (isTelescop ? -1 : 1) * GetComponent<RectTransform>().rect.width;
+        transform.position = transform.position + new Vector3(offset, 0, 0);
+        isTelescop = !isTelescop;
+        telescopText.text = isTelescop ? "←" : "→";
+    }
 }
