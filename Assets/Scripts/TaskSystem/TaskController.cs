@@ -38,7 +38,7 @@ public class TaskController : MonoBehaviour
         if (GetComponent<Image>().fillAmount <= 0)
         {
             TaskViewController.Instance.ClearView();
-            // TaskViewController.Instance.AddToPool(Data.caseId);
+            // call timeout action
             Destroy(gameObject);
         }
     }
